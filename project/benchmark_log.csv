@@ -1,3 +1,4 @@
 date,owner,git_commit,branch,model_size,nodes,gpus,mode,feature,micro_batch_size,global_batch_size,sequence_length,steps,tokens_per_sec_per_gpu,wandb_url,log_path,status,notes
 2026-04-29,Thomas,unknown,thomas/profiling-compile,125m,1,4,throughput,setup-smoke-test,16,256,4096,2,,,,submitted,First smoke test to verify account paths container and launch flow
 2026-04-29,Thomas,f030bd4,thomas/profiling-compile,125m,1,4,throughput,debug-smoke-test,16,256,4096,2,24807,,logs/gipfel-throughput-125m-2s-1n-1985345.log,completed,Smoke test completed on debug partition; iter2 tokens/sec/GPU used
+2026-04-29,Thomas,2da2127,thomas/profiling-compile,760m,1,4,throughput,debug-setup-baseline,4,256,4096,20,42907,,logs/gipfel-throughput-760m-20s-1n-1985414.log,completed,Debug setup baseline; representative stable iter18 tokens/sec/GPU used; range roughly 35k-45k after warmup
