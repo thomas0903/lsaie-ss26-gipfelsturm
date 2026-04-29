@@ -24,7 +24,7 @@ Commands once the shared fork exists:
 
 mkdir -p /users/$USER/gipfelsturm
 cd /users/$USER/gipfelsturm
-git clone --recurse-submodules <OUR_SHARED_FORK_URL>
+git clone --recurse-submodules git@github.com:thomas0903/lsaie-ss26-gipfelsturm.git
 cd lsaie-ss26-gipfelsturm
 mkdir -p ~/.edf
 cp alps3.toml ~/.edf/alps3.toml
