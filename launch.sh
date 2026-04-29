@@ -25,7 +25,7 @@ case $MODE in
     throughput)
         TRAINING_STEPS=${3:-50}
         NODES=${4:-4}
-        TIME=00:30:00
+        TIME=00:05:00
         EVAL_INTERVAL=$TRAINING_STEPS
         EVAL_ITERS=0
         LR_WARMUP_ITERS=10
@@ -116,6 +116,7 @@ HEADER
 
 cat >> "$SCRIPT" << SBATCH_DIRECTIVES
 #SBATCH --account=lsaie-ss26
+#SBATCH --partition=debug
 #SBATCH --time=${TIME}
 #SBATCH --job-name=${JOB_NAME}
 #SBATCH --output=logs/%x-%j.log
