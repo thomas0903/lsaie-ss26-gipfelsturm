@@ -88,6 +88,8 @@ SEQ_LEN=4096
 JOB_NAME="gipfel-${MODE}-${MODEL_SIZE}-${TRAINING_STEPS}s-${NODES}n"
 PARTITION=${PARTITION:-normal}
 TIME=${TIME_OVERRIDE:-$TIME}
+PARTITION=${PARTITION:-normal}
+TIME=${TIME_OVERRIDE:-$TIME}
 
 ################ W&B block ################
 if [ "$WANDB" = true ]; then
@@ -118,6 +120,7 @@ HEADER
 
 cat >> "$SCRIPT" << SBATCH_DIRECTIVES
 #SBATCH --account=lsaie-ss26
+#SBATCH --partition=${PARTITION}
 #SBATCH --partition=${PARTITION}
 #SBATCH --time=${TIME}
 #SBATCH --job-name=${JOB_NAME}
