@@ -25,7 +25,7 @@ case $MODE in
     throughput)
         TRAINING_STEPS=${3:-50}
         NODES=${4:-4}
-        TIME=00:05:00
+        TIME=00:30:00
         EVAL_INTERVAL=$TRAINING_STEPS
         EVAL_ITERS=0
         LR_WARMUP_ITERS=$(( TRAINING_STEPS > 10 ? 10 : TRAINING_STEPS - 1 ))
@@ -86,6 +86,8 @@ esac
 GBS=256
 SEQ_LEN=4096
 JOB_NAME="gipfel-${MODE}-${MODEL_SIZE}-${TRAINING_STEPS}s-${NODES}n"
+PARTITION=${PARTITION:-normal}
+TIME=${TIME_OVERRIDE:-$TIME}
 
 ################ W&B block ################
 if [ "$WANDB" = true ]; then
@@ -116,7 +118,7 @@ HEADER
 
 cat >> "$SCRIPT" << SBATCH_DIRECTIVES
 #SBATCH --account=lsaie-ss26
-#SBATCH --partition=debug
+#SBATCH --partition=${PARTITION}
 #SBATCH --time=${TIME}
 #SBATCH --job-name=${JOB_NAME}
 #SBATCH --output=logs/%x-%j.log
