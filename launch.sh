@@ -28,7 +28,7 @@ case $MODE in
         TIME=00:05:00
         EVAL_INTERVAL=$TRAINING_STEPS
         EVAL_ITERS=0
-        LR_WARMUP_ITERS=10
+        LR_WARMUP_ITERS=$(( TRAINING_STEPS > 10 ? 10 : TRAINING_STEPS - 1 ))
         LOGGING_EXTRA=""
         WANDB=false
         ;;
