@@ -2,7 +2,7 @@
 #
 # Usage: ./launch.sh <mode> <model_size> [steps] [nodes]
 #
-# Modes:     throughput  (50 steps, no logging)
+# Modes:     throughput  (50 steps, with W&B)
 #            train       (N steps, with W&B and Tensorboard)
 #
 # Sizes:     125m, 350m, 760m, 1.5b, 3b, 8b
@@ -17,6 +17,8 @@
 
 set -euo pipefail
 
+source "$(dirname "$0")/config.sh"
+
 MODE=${1:?Usage: ./launch.sh <mode> <model_size> [steps] [nodes]}
 MODEL_SIZE=${2:?Usage: ./launch.sh <mode> <model_size> [steps] [nodes]}
 
@@ -30,7 +32,7 @@ case $MODE in
         EVAL_ITERS=0
         LR_WARMUP_ITERS=$(( TRAINING_STEPS > 10 ? 10 : TRAINING_STEPS - 1 ))
         LOGGING_EXTRA=""
-        WANDB=false
+        WANDB=true
         ;;
     train)
         TRAINING_STEPS=${3:?Usage: ./launch.sh train <model_size> <steps> [nodes]}
@@ -88,8 +90,6 @@ SEQ_LEN=4096
 JOB_NAME="gipfel-${MODE}-${MODEL_SIZE}-${TRAINING_STEPS}s-${NODES}n"
 PARTITION=${PARTITION:-normal}
 TIME=${TIME_OVERRIDE:-$TIME}
-PARTITION=${PARTITION:-normal}
-TIME=${TIME_OVERRIDE:-$TIME}
 
 ################ W&B block ################
 if [ "$WANDB" = true ]; then
@@ -119,8 +119,7 @@ cat > "$SCRIPT" << 'HEADER'
 HEADER
 
 cat >> "$SCRIPT" << SBATCH_DIRECTIVES
-#SBATCH --account=lsaie-ss26
-#SBATCH --partition=${PARTITION}
+#SBATCH --account=${SBATCH_ACCOUNT}
 #SBATCH --partition=${PARTITION}
 #SBATCH --time=${TIME}
 #SBATCH --job-name=${JOB_NAME}
@@ -134,16 +133,19 @@ cat >> "$SCRIPT" << SBATCH_DIRECTIVES
 #SBATCH --no-requeue
 SBATCH_DIRECTIVES
 
-cat >> "$SCRIPT" << 'BODY'
+cat >> "$SCRIPT" << 'BODY_HEAD'
 
-echo "START TIME: $(date)"
+echo "START TIME: \$(date)"
 
 ################ Configs ################
-WORKDIR=/users/course_00282/gipfelsturm/lsaie-ss26-gipfelsturm
-MEGATRON_LM_DIR=$WORKDIR/Megatron-LM
+BODY_HEAD
+
+cat >> "$SCRIPT" << BODY_WORKDIR
+WORKDIR=${WORKDIR}
+MEGATRON_LM_DIR=\$WORKDIR/Megatron-LM
 DATA_PREFIX=/capstor/store/cscs/swissai/infra01/datasets/nvidia/Nemotron-ClimbMix/climbmix_small_megatron/climbmix_small
-DATASET_CACHE_DIR=/iopsstor/scratch/cscs/$USER/gipfelsturm/cache
-BODY
+DATASET_CACHE_DIR=/iopsstor/scratch/cscs/\$USER/gipfelsturm/cache
+BODY_WORKDIR
 
 cat >> "$SCRIPT" << CONFIGS
 
