@@ -1,0 +1,12 @@
+date,model_size,partition,feature,nodes,gpus,micro_batch_size,global_batch_size,steps,tokens_per_sec_per_gpu,log_path
+2026-04-29,125m,debug,debug-smoke-test,1,4,16,256,2,24807,logs/gipfel-throughput-125m-2s-1n-1985345.log
+2026-04-29,760m,debug,debug-setup-baseline,1,4,4,256,20,42907,logs/gipfel-throughput-760m-20s-1n-1985414.log
+2026-04-29,8b,normal,normal-baseline,1,4,2,256,50,10811,logs/gipfel-throughput-8b-50s-1n-1985488.log
+2026-05-14,760m,debug,post-merge-debug-sanity,1,4,4,256,8,11265,logs/gipfel-throughput-760m-8s-1n-2227553.log
+2026-05-14,760m,unknown,nsys-first-profile,1,4,4,256,4,11266,logs/gipfel-throughput-760m-4s-1n-2227705.log
+2026-05-14,760m,debug,no-distributed-optimizer-debug,1,4,4,256,8,20396,logs/gipfel-throughput-760m-8s-1n-2228731.log
+2026-05-14,760m,normal,no-distributed-optimizer-normal-20s,1,4,4,256,20,27611,logs/gipfel-throughput-760m-20s-1n-2229470.log
+2026-05-14,760m,normal,distributed-optimizer-normal-20s-baseline,1,4,4,256,20,27611,logs/gipfel-throughput-760m-20s-1n-2229668.log
+2026-05-14,760m,normal,mbs8-normal-20s,1,4,8,256,20,15610,logs/gipfel-throughput-760m-20s-1n-2231926.log
+2026-05-14,760m,normal,mbs2-normal-20s,1,4,2,256,20,14747,logs/gipfel-throughput-760m-20s-1n-2231946.log
+2026-05-14,760m,normal,normal-baseline-50s,1,4,4,256,50,37375,logs/gipfel-throughput-760m-50s-1n-2235436.log

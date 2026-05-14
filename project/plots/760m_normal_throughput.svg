@@ -1,0 +1,31 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="980" height="420" viewBox="0 0 980 420">
+<rect width="100%" height="100%" fill="#ffffff"/>
+<text x="40" y="34" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">760m normal throughput comparison</text>
+<text x="40" y="56" font-family="Arial, sans-serif" font-size="13" fill="#4b5563">Final-iteration tokens/sec/GPU from completed runs; use notes for stable-window averages.</text>
+<line x1="190.0" y1="68" x2="190.0" y2="338" stroke="#e5e7eb" stroke-width="1"/>
+<text x="190.0" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">0k</text>
+<line x1="364.5" y1="68" x2="364.5" y2="338" stroke="#e5e7eb" stroke-width="1"/>
+<text x="364.5" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">10k</text>
+<line x1="539.0" y1="68" x2="539.0" y2="338" stroke="#e5e7eb" stroke-width="1"/>
+<text x="539.0" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">20k</text>
+<line x1="713.5" y1="68" x2="713.5" y2="338" stroke="#e5e7eb" stroke-width="1"/>
+<text x="713.5" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">30k</text>
+<line x1="888.0" y1="68" x2="888.0" y2="338" stroke="#e5e7eb" stroke-width="1"/>
+<text x="888.0" y="362" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">40k</text>
+<text x="176" y="92.6" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#111827">MBS 2</text>
+<rect x="190" y="68.0" width="257.3" height="41.2" rx="4" fill="#2563eb"/>
+<text x="455.3" y="92.6" font-family="Arial, sans-serif" font-size="12" fill="#111827">14,747</text>
+<text x="176" y="149.8" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#111827">MBS 4 baseline</text>
+<rect x="190" y="125.2" width="481.8" height="41.2" rx="4" fill="#059669"/>
+<text x="679.8" y="149.8" font-family="Arial, sans-serif" font-size="12" fill="#111827">27,611</text>
+<text x="176" y="207.0" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#111827">No dist opt</text>
+<rect x="190" y="182.4" width="481.8" height="41.2" rx="4" fill="#64748b"/>
+<text x="679.8" y="207.0" font-family="Arial, sans-serif" font-size="12" fill="#111827">27,611</text>
+<text x="176" y="264.2" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#111827">MBS 8</text>
+<rect x="190" y="239.6" width="272.4" height="41.2" rx="4" fill="#d97706"/>
+<text x="470.4" y="264.2" font-family="Arial, sans-serif" font-size="12" fill="#111827">15,610</text>
+<text x="176" y="321.4" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#111827">MBS 4, 50 steps</text>
+<rect x="190" y="296.8" width="652.2" height="41.2" rx="4" fill="#7c3aed"/>
+<text x="850.2" y="321.4" font-family="Arial, sans-serif" font-size="12" fill="#111827">37,375</text>
+<text x="40" y="396" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">Normal 760m completed-run mean final throughput: 24591 tokens/sec/GPU</text>
+</svg>

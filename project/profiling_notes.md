@@ -128,3 +128,19 @@ Interpretation:
 - Smaller MBS 2 also underperforms, likely from more microsteps per global batch and worse amortization.
 - Keep MBS 4 for the current 760m throughput baseline.
 - No existing Megatron launcher flag for full-model `torch.compile` was found; a compile experiment would require a deliberate runtime patch/hook rather than just adding a command-line argument.
+
+## 2026-05-14: Longer Normal 760m Baseline
+
+Command:
+- `PARTITION=normal TIME_OVERRIDE=00:45:00 ./launch.sh throughput 760m 50 1`
+
+Run:
+- Job `2235436`, log `logs/gipfel-throughput-760m-50s-1n-2235436.log`, completed in `7m57s`.
+- Final iteration: `37375` tokens/sec/GPU.
+- Average iter 3-50: `42228` tokens/sec/GPU.
+- Average iter 10-50: `40736` tokens/sec/GPU.
+- Average iter 20-50: `41893` tokens/sec/GPU, median `41965`.
+
+Interpretation:
+- This is the cleanest 760m / 1-node normal baseline so far for final plots, but normal-partition throughput is very bursty on this run.
+- Use stable-window averages and medians for plots instead of only the final iteration.
