@@ -91,6 +91,14 @@ JOB_NAME="gipfel-${MODE}-${MODEL_SIZE}-${TRAINING_STEPS}s-${NODES}n"
 PARTITION=${PARTITION:-normal}
 TIME=${TIME_OVERRIDE:-$TIME}
 PROFILE_NSYS=${PROFILE_NSYS:-0}
+USE_DISTRIBUTED_OPTIMIZER=${USE_DISTRIBUTED_OPTIMIZER:-1}
+case "$USE_DISTRIBUTED_OPTIMIZER" in
+    0|1) ;;
+    *)
+        echo "USE_DISTRIBUTED_OPTIMIZER must be 0 or 1 (got: $USE_DISTRIBUTED_OPTIMIZER)"
+        exit 1
+        ;;
+esac
 NSYS_TRACE=${NSYS_TRACE:-cuda,nvtx,osrt,cublas,cudnn,nccl}
 NSYS_OUTPUT_DIR=${NSYS_OUTPUT_DIR:-/iopsstor/scratch/cscs/$USER/gipfelsturm/nsys}
 NSYS_OUTPUT_NAME=${NSYS_OUTPUT_NAME:-${JOB_NAME}}
@@ -170,6 +178,9 @@ PROFILE_NSYS=${PROFILE_NSYS}
 NSYS_TRACE="${NSYS_TRACE}"
 NSYS_OUTPUT_DIR="${NSYS_OUTPUT_DIR}"
 NSYS_OUTPUT_NAME="${NSYS_OUTPUT_NAME}"
+
+# Distributed optimizer
+USE_DISTRIBUTED_OPTIMIZER=${USE_DISTRIBUTED_OPTIMIZER}
 CONFIGS
 
 cat >> "$SCRIPT" << 'SETUP'
@@ -192,9 +203,14 @@ MASTER_PORT=25678
 
 TRANSFORMER_ENGINE_ARGS=(
     --transformer-impl transformer_engine
-    --use-precision-aware-optimizer
-    --main-grads-dtype bf16
 )
+
+if [ "$USE_DISTRIBUTED_OPTIMIZER" = "1" ]; then
+    TRANSFORMER_ENGINE_ARGS+=(
+        --use-precision-aware-optimizer
+        --main-grads-dtype bf16
+    )
+fi
 
 SETUP
 
@@ -263,10 +279,15 @@ MIXED_PRECISION_ARGS=(
 DISTRIBUTED_ARGS=(
     --tensor-model-parallel-size 1
     --pipeline-model-parallel-size 1
-    --use-distributed-optimizer
-    --overlap-grad-reduce
-    --overlap-param-gather
 )
+
+if [ "$USE_DISTRIBUTED_OPTIMIZER" = "1" ]; then
+    DISTRIBUTED_ARGS+=(
+        --use-distributed-optimizer
+        --overlap-grad-reduce
+        --overlap-param-gather
+    )
+fi
 
 LOGGING_ARGS=(
     --log-throughput
