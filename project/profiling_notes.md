@@ -103,3 +103,28 @@ Interpretation:
 - Stable-window throughput is effectively tied, and the baseline is slightly higher on iter 3-20.
 - Keep `USE_DISTRIBUTED_OPTIMIZER=1` as the default. Do not spend an NSYS pass on the no-distributed-optimizer variant unless later evidence changes this.
 - Next practical lever is an MBS/GBS sweep or a tightly scoped compile experiment, not changing the distributed optimizer default.
+
+## 2026-05-14: MBS Sweep Around 760m Default
+
+Commands:
+- `PARTITION=normal TIME_OVERRIDE=00:30:00 MBS_OVERRIDE=8 GBS_OVERRIDE=256 ./launch.sh throughput 760m 20 1`
+- `PARTITION=normal TIME_OVERRIDE=00:30:00 MBS_OVERRIDE=2 GBS_OVERRIDE=256 ./launch.sh throughput 760m 20 1`
+
+Runs:
+- MBS 8: job `2231926`, log `logs/gipfel-throughput-760m-20s-1n-2231926.log`, completed in `8m32s`.
+- MBS 2: job `2231946`, log `logs/gipfel-throughput-760m-20s-1n-2231946.log`, completed in `7m19s`.
+
+Throughput compared with the MBS 4 normal baseline from job `2229668`:
+
+| MBS | Final iter | Avg iter 3-20 | Avg iter 10-20 | Max allocated after warmup |
+|---:|---:|---:|---:|---:|
+| 2 | `14747` | `15051` | `16096` | ~17 GB |
+| 4 | `27611` | `32737` | `32136` | ~30 GB |
+| 8 | `15610` | `13120` | `14510` | ~54 GB |
+
+Interpretation:
+- The existing 760m default MBS 4 is clearly better than MBS 2 or MBS 8 for this 1-node normal-partition setup.
+- Larger MBS 8 fits memory but roughly halves throughput, likely because the larger microbatch makes each microstep much slower without improving total tokens per iteration.
+- Smaller MBS 2 also underperforms, likely from more microsteps per global batch and worse amortization.
+- Keep MBS 4 for the current 760m throughput baseline.
+- No existing Megatron launcher flag for full-model `torch.compile` was found; a compile experiment would require a deliberate runtime patch/hook rather than just adding a command-line argument.
