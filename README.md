@@ -115,6 +115,14 @@ All training is launched via `launch.sh <mode> <model_size> [steps] [nodes]`. Th
 ./launch.sh throughput 8b 50 1        # 50 steps, 1 node
 ```
 
+**NSYS profiling** uses the same launcher with `PROFILE_NSYS=1`. For a short first-pass profile on the debug partition:
+
+```bash
+./profile_nsys.sh 760m 20 1
+```
+
+Traces are written to `/iopsstor/scratch/cscs/$USER/gipfelsturm/nsys/`.
+
 **Train** mode runs a specified number of steps with W&B and Tensorboard logging:
 
 ```bash

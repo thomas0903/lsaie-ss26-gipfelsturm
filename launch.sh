@@ -90,6 +90,10 @@ SEQ_LEN=4096
 JOB_NAME="gipfel-${MODE}-${MODEL_SIZE}-${TRAINING_STEPS}s-${NODES}n"
 PARTITION=${PARTITION:-normal}
 TIME=${TIME_OVERRIDE:-$TIME}
+PROFILE_NSYS=${PROFILE_NSYS:-0}
+NSYS_TRACE=${NSYS_TRACE:-cuda,nvtx,osrt,cublas,cudnn,nccl}
+NSYS_OUTPUT_DIR=${NSYS_OUTPUT_DIR:-/iopsstor/scratch/cscs/$USER/gipfelsturm/nsys}
+NSYS_OUTPUT_NAME=${NSYS_OUTPUT_NAME:-${JOB_NAME}}
 
 ################ W&B block ################
 if [ "$WANDB" = true ]; then
@@ -160,6 +164,12 @@ PROJECT_NAME=gipfelsturm
 EXP_NAME=${MODE}-${MODEL_SIZE}-\${SLURM_NNODES}n
 LOG_DIR=/iopsstor/scratch/cscs/\$USER/gipfelsturm/\$PROJECT_NAME/\$EXP_NAME
 TENSORBOARD_DIR=\$LOG_DIR/tensorboard
+
+# Profiling
+PROFILE_NSYS=${PROFILE_NSYS}
+NSYS_TRACE="${NSYS_TRACE}"
+NSYS_OUTPUT_DIR="${NSYS_OUTPUT_DIR}"
+NSYS_OUTPUT_NAME="${NSYS_OUTPUT_NAME}"
 CONFIGS
 
 cat >> "$SCRIPT" << 'SETUP'
@@ -319,7 +329,21 @@ WANDB_INSERT
 cat >> "$SCRIPT" << 'FOOTER'
 
 echo "CMD: $TRAINING_CMD"
-srun -lu --mpi=pmix --network=disable_rdzv_get --environment=alps3 --cpus-per-task $SLURM_CPUS_PER_TASK --wait 60 bash -c "numactl --membind=0-3 $TRAINING_CMD"
+if [ "$PROFILE_NSYS" = "1" ]; then
+    mkdir -p "$NSYS_OUTPUT_DIR"
+    echo "NSYS output: $NSYS_OUTPUT_DIR/${NSYS_OUTPUT_NAME}-rank\${SLURM_PROCID}.nsys-rep"
+    SRUN_CMD="nsys profile \
+        -s none \
+        -w true \
+        -t $NSYS_TRACE \
+        --force-overwrite=true \
+        -o $NSYS_OUTPUT_DIR/${NSYS_OUTPUT_NAME}-rank\${SLURM_PROCID} \
+        numactl --membind=0-3 $TRAINING_CMD"
+else
+    SRUN_CMD="numactl --membind=0-3 $TRAINING_CMD"
+fi
+
+srun -lu --mpi=pmix --network=disable_rdzv_get --environment=alps3 --cpus-per-task $SLURM_CPUS_PER_TASK --wait 60 bash -c "$SRUN_CMD"
 
 echo "END TIME: $(date)"
 FOOTER
