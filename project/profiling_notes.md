@@ -80,3 +80,26 @@ Interpretation:
 - The no-distributed-optimizer path is viable for 760m / 1 node / 4 GPUs once precision-aware optimizer flags are also disabled.
 - Compared with the recent debug baseline final iteration of `11265` tokens/sec/GPU, this looks promising, but the debug partition and short run show enough variance that this should be treated only as a sanity signal.
 - Next comparable evidence should be a normal-partition run or a longer controlled debug run, not started without agreement.
+
+## 2026-05-14: Normal-Partition Distributed Optimizer Comparison
+
+Commands:
+- `PARTITION=normal TIME_OVERRIDE=00:30:00 USE_DISTRIBUTED_OPTIMIZER=0 ./launch.sh throughput 760m 20 1`
+- `PARTITION=normal TIME_OVERRIDE=00:30:00 USE_DISTRIBUTED_OPTIMIZER=1 ./launch.sh throughput 760m 20 1`
+
+Runs:
+- No distributed optimizer: job `2229470`, log `logs/gipfel-throughput-760m-20s-1n-2229470.log`, completed in `4m28s`.
+- Distributed optimizer baseline: job `2229668`, log `logs/gipfel-throughput-760m-20s-1n-2229668.log`, completed in `4m20s`.
+
+Throughput:
+
+| Run | Final iter | Avg iter 3-20 | Avg iter 10-20 |
+|---|---:|---:|---:|
+| `USE_DISTRIBUTED_OPTIMIZER=0` | `27611` | `32054` | `32128` |
+| `USE_DISTRIBUTED_OPTIMIZER=1` | `27611` | `32737` | `32136` |
+
+Interpretation:
+- The debug-partition improvement did not reproduce under the controlled normal-partition comparison.
+- Stable-window throughput is effectively tied, and the baseline is slightly higher on iter 3-20.
+- Keep `USE_DISTRIBUTED_OPTIMIZER=1` as the default. Do not spend an NSYS pass on the no-distributed-optimizer variant unless later evidence changes this.
+- Next practical lever is an MBS/GBS sweep or a tightly scoped compile experiment, not changing the distributed optimizer default.

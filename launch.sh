@@ -86,6 +86,24 @@ case $MODEL_SIZE in
 esac
 
 GBS=256
+MBS=${MBS_OVERRIDE:-$MBS}
+GBS=${GBS_OVERRIDE:-$GBS}
+case "$MBS" in
+    *[!0-9]*|"")
+        echo "MBS_OVERRIDE must be a positive integer (got: $MBS)"
+        exit 1
+        ;;
+esac
+case "$GBS" in
+    *[!0-9]*|"")
+        echo "GBS_OVERRIDE must be a positive integer (got: $GBS)"
+        exit 1
+        ;;
+esac
+if [ "$MBS" -le 0 ] || [ "$GBS" -le 0 ]; then
+    echo "MBS_OVERRIDE and GBS_OVERRIDE must be positive integers (got MBS=$MBS GBS=$GBS)"
+    exit 1
+fi
 SEQ_LEN=4096
 JOB_NAME="gipfel-${MODE}-${MODEL_SIZE}-${TRAINING_STEPS}s-${NODES}n"
 PARTITION=${PARTITION:-normal}
