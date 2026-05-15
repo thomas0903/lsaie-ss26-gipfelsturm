@@ -12,3 +12,5 @@ date,model_size,partition,feature,status,nodes,gpus,micro_batch_size,global_batc
 2026-05-14,760m,normal,mbs2-normal-20s,completed,1,4,2,256,20,14747,logs/gipfel-throughput-760m-20s-1n-2231946.log
 2026-05-14,760m,normal,normal-baseline-50s,completed,1,4,4,256,50,37375,logs/gipfel-throughput-760m-50s-1n-2235436.log
 2026-05-15,760m,normal,nsys-normal-profile-timeout,timeout,1,4,4,256,8,28336,logs/gipfel-throughput-760m-8s-1n-2235710.log
+2026-05-15,760m,normal,gbs128-normal-30s,completed,1,4,4,128,30,37490,logs/gipfel-throughput-760m-30s-1n-2254427.log
+2026-05-15,760m,normal,gbs512-normal-30s,completed,1,4,4,512,30,48096,logs/gipfel-throughput-760m-30s-1n-2254428.log

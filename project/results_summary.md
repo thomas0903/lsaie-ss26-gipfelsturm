@@ -17,6 +17,7 @@ This file records which benchmark numbers are suitable for project claims and wh
 |---|---:|---|
 | Keep distributed optimizer? | `USE_DISTRIBUTED_OPTIMIZER=1`: avg last half `32565`; `USE_DISTRIBUTED_OPTIMIZER=0`: avg last half `32555` | No confirmed gain from disabling it; keep default on. |
 | Best MBS among 2/4/8? | MBS 2: `16112`; MBS 4: `32565`; MBS 8: `14659` | Keep MBS 4 for 760m / 1 node / GBS 256. |
+| Best GBS among 128/256/512? | GBS 128: avg last half `22743`; GBS 256 longer baseline: avg last half `43742`; GBS 512: avg last half `59626` | GBS 512 is the strongest candidate so far, but it needs replication or a longer run before making it the final headline claim. |
 | Longer baseline reference | 50-step MBS 4 baseline: avg last half `43742`, median last half `42732` | Use as the cleaner 760m normal baseline, with variance caveat. |
 | Normal NSYS profile? | Job `2235710` timed out during report generation; `.nsys-rep` is 0 bytes | Do not use it for profile claims. |
 
@@ -54,7 +55,7 @@ Thomas's current contribution is a defensible throughput evaluation pipeline plu
 4. Built log parsing that reports stable-window metrics and filters non-claim rows.
 5. Ran controlled normal-partition comparisons for distributed optimizer and micro-batch size.
 
-The strongest current claim is narrow but defensible: for the provided 760m, one-node, GBS 256 setup, MBS 4 with the default distributed optimizer remains the best measured configuration. Disabling the distributed optimizer did not reproduce the promising debug result on normal partition, and MBS 2/8 were clearly worse than MBS 4.
+The strongest current claim is narrow but defensible: for the provided 760m, one-node, GBS 256 setup, MBS 4 with the default distributed optimizer remains the best measured configuration. Disabling the distributed optimizer did not reproduce the promising debug result on normal partition, and MBS 2/8 were clearly worse than MBS 4. The first normal GBS sweep suggests GBS 512 may be better than GBS 256, but that result should be replicated because normal-partition throughput is bursty.
 
 ## Teammate Integration Contract
 

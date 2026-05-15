@@ -21,6 +21,7 @@ Current Thomas-side conclusion:
 
 - The 760m, one-node, GBS 256 baseline is noisy on normal partition, so single final-iteration values are not reliable enough for claims.
 - Stable-window metrics show that MBS 4 is the best tested micro-batch size among 2, 4, and 8.
+- The first normal-partition GBS sweep suggests GBS 512 is a promising next baseline, but it should be replicated or run longer before using it as the strongest claim.
 - Disabling the distributed optimizer did not improve the normal-partition result.
 - The usable debug NSYS profile suggests NCCL collectives dominate summed GPU kernel time; attention is already using CUDNN/flash SDPA and is not the obvious first bottleneck for Thomas's lane.
 
@@ -89,6 +90,8 @@ Key Thomas-side rows:
 | No distributed optimizer, MBS 4, GBS 256 | 32555 | Essentially tied with baseline; no confirmed win |
 | MBS 8, GBS 256 | 14659 | Worse than baseline |
 | Longer MBS 4 baseline | 43742 | Cleaner 50-step reference, but bursty |
+| MBS 4, GBS 128 | 22743 | Lower GBS is worse in the 30-step sweep |
+| MBS 4, GBS 512 | 59626 | Best observed stable-window result so far; replicate or run longer before final headline claim |
 
 ### Profiling
 
@@ -120,7 +123,7 @@ This is directional because it ran on debug and includes warmup. The normal-part
 
 - Integrate Brandy's attention backend results.
 - Integrate Jacques's FP8/memory/fusion results.
-- Optionally run a controlled GBS sweep for Thomas's communication-bottleneck hypothesis.
+- Replicate the GBS 512 result or run a longer 50-step GBS 512 baseline if time permits.
 - If a final profile is required, rerun NSYS with lower overhead and enough report-generation time:
 
 ```bash

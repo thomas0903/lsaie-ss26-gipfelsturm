@@ -27,6 +27,8 @@ CLAIM_FEATURES = set([
     "no-distributed-optimizer-normal-20s",
     "mbs2-normal-20s",
     "mbs8-normal-20s",
+    "gbs128-normal-30s",
+    "gbs512-normal-30s",
     "normal-baseline-50s",
 ])
 
@@ -46,16 +48,20 @@ LABELS = {
     "distributed-optimizer-normal-20s-baseline": "MBS 4 baseline",
     "no-distributed-optimizer-normal-20s": "No dist opt",
     "mbs8-normal-20s": "MBS 8",
+    "gbs128-normal-30s": "GBS 128",
+    "gbs512-normal-30s": "GBS 512",
     "normal-baseline-50s": "MBS 4, 50 steps",
     "nsys-normal-profile-timeout": "NSYS timeout",
 }
 
 NORMAL_ORDER = {
     "mbs2-normal-20s": 0,
-    "distributed-optimizer-normal-20s-baseline": 1,
-    "no-distributed-optimizer-normal-20s": 2,
-    "mbs8-normal-20s": 3,
-    "normal-baseline-50s": 4,
+    "gbs128-normal-30s": 1,
+    "distributed-optimizer-normal-20s-baseline": 2,
+    "no-distributed-optimizer-normal-20s": 3,
+    "mbs8-normal-20s": 4,
+    "normal-baseline-50s": 5,
+    "gbs512-normal-30s": 6,
 }
 
 DEBUG_ORDER = {
