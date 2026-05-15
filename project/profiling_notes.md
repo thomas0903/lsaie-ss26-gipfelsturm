@@ -144,3 +144,24 @@ Run:
 Interpretation:
 - This is the cleanest 760m / 1-node normal baseline so far for final plots, but normal-partition throughput is very bursty on this run.
 - Use stable-window averages and medians for plots instead of only the final iteration.
+
+## 2026-05-15: Normal NSYS Profile Attempt Timed Out
+
+Command:
+- `PARTITION=normal TIME_OVERRIDE=00:45:00 ./profile_nsys.sh 760m 8 1`
+
+Run:
+- Job `2235710`, log `logs/gipfel-throughput-760m-8s-1n-2235710.log`.
+- Slurm state: `TIMEOUT` after `45m15s`.
+- Training reached all 8 iterations before timeout.
+- Final iteration: `28336` tokens/sec/GPU.
+- Iteration tokens/sec/GPU: 1 `16544`, 2 `19752`, 3 `19950`, 4 `25198`, 5 `19697`, 6 `25394`, 7 `29065`, 8 `28336`.
+
+Profile artifact:
+- Expected report path: `/iopsstor/scratch/cscs/course_00282/gipfelsturm/nsys/gipfel-throughput-760m-8s-1n-rank0.nsys-rep`.
+- The report file exists but is `0` bytes because the job hit the Slurm time limit during NSYS report generation.
+- No usable SQLite export or profile stats were produced from this attempt.
+
+Interpretation:
+- Normal-partition NSYS needs a larger wall-clock limit or fewer traced domains/steps; 8 training steps fit, but report finalization did not fit in `00:45:00`.
+- Do not use this profile attempt for bottleneck claims. The earlier debug NSYS profile remains the only usable profile summary so far.
