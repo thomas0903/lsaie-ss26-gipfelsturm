@@ -20,6 +20,7 @@ DEFENSIBLE_CSV = OUT_DIR / "defensible_throughput_summary.csv"
 NORMAL_SVG = OUT_DIR / "760m_normal_stable_throughput.svg"
 DEBUG_SVG = OUT_DIR / "760m_debug_stable_throughput.svg"
 LEGACY_NORMAL_SVG = OUT_DIR / "760m_normal_throughput.svg"
+NORMAL_RANGE_SVG = OUT_DIR / "760m_normal_stable_range.svg"
 
 CLAIM_FEATURES = set([
     "distributed-optimizer-normal-20s-baseline",
@@ -327,6 +328,75 @@ def write_bar_svg(path, title, subtitle, runs, order, footer):
     path.write_text("\n".join(lines) + "\n")
 
 
+def write_range_svg(path, title, subtitle, runs, order, footer):
+    selected = [
+        run for run in runs
+        if run.get("defensible_metric") not in ("", None)
+        and run.get("min_excluding_first2") not in ("", None)
+        and run.get("max_excluding_first2") not in ("", None)
+        and run.get("median_excluding_first2") not in ("", None)
+    ]
+    selected.sort(key=lambda run: order.get(run.get("feature"), 99))
+    if not selected:
+        path.write_text("<svg xmlns=\"http://www.w3.org/2000/svg\"></svg>\n")
+        return
+
+    max_value = max(float(run["max_excluding_first2"]) for run in selected) * 1.12
+    width = 1120
+    height = max(430, 116 + len(selected) * 64)
+    left = 230
+    right = 130
+    top = 84
+    bottom = 100
+    plot_w = width - left - right
+    row_gap = 20
+    row_h = (height - top - bottom - row_gap * (len(selected) - 1)) / len(selected)
+
+    lines = [
+        '<svg xmlns="http://www.w3.org/2000/svg" width="{}" height="{}" viewBox="0 0 {} {}">'.format(width, height, width, height),
+        '<rect width="100%" height="100%" fill="#ffffff"/>',
+        '<text x="40" y="34" font-family="Arial, sans-serif" font-size="22" font-weight="700" fill="#111827">{}</text>'.format(svg_escape(title)),
+        '<text x="40" y="58" font-family="Arial, sans-serif" font-size="13" fill="#4b5563">{}</text>'.format(svg_escape(subtitle)),
+    ]
+
+    tick = 0
+    tick_step = 10000
+    while tick <= int(max_value) + tick_step:
+        x = left + tick / max_value * plot_w
+        if x <= left + plot_w:
+            lines.append('<line x1="{:.1f}" y1="{}" x2="{:.1f}" y2="{}" stroke="#e5e7eb" stroke-width="1"/>'.format(x, top - 10, x, height - bottom + 10))
+            lines.append('<text x="{:.1f}" y="{}" text-anchor="middle" font-family="Arial, sans-serif" font-size="11" fill="#6b7280">{}k</text>'.format(x, height-bottom+30, tick//1000))
+        tick += tick_step
+
+    for idx, run in enumerate(selected):
+        y_mid = top + idx * (row_h + row_gap) + row_h / 2
+        label = LABELS.get(run.get("feature"), run.get("feature"))
+        min_value = float(run["min_excluding_first2"])
+        max_run_value = float(run["max_excluding_first2"])
+        median_value = float(run["median_excluding_first2"])
+        metric_value = float(run["defensible_metric"])
+        x_min = left + min_value / max_value * plot_w
+        x_max = left + max_run_value / max_value * plot_w
+        x_median = left + median_value / max_value * plot_w
+        x_metric = left + metric_value / max_value * plot_w
+
+        lines.append('<text x="{}" y="{:.1f}" text-anchor="end" font-family="Arial, sans-serif" font-size="13" fill="#111827">{}</text>'.format(left-14, y_mid - 6, svg_escape(label)))
+        lines.append('<text x="{}" y="{:.1f}" text-anchor="end" font-family="Arial, sans-serif" font-size="10" fill="#6b7280">{} iters; {}</text>'.format(left-14, y_mid + 10, svg_escape(run.get("parsed_iterations", "?")), svg_escape(run.get("defensible_metric_name", ""))))
+        lines.append('<line x1="{:.1f}" y1="{:.1f}" x2="{:.1f}" y2="{:.1f}" stroke="#94a3b8" stroke-width="8" stroke-linecap="round"/>'.format(x_min, y_mid, x_max, y_mid))
+        lines.append('<circle cx="{:.1f}" cy="{:.1f}" r="6" fill="#111827"><title>median excluding first two: {:,}</title></circle>'.format(x_median, y_mid, int(round(median_value))))
+        lines.append('<circle cx="{:.1f}" cy="{:.1f}" r="6" fill="#2563eb"><title>claim metric: {:,}</title></circle>'.format(x_metric, y_mid, int(round(metric_value))))
+        lines.append('<text x="{:.1f}" y="{:.1f}" font-family="Arial, sans-serif" font-size="11" fill="#334155">min {:,} / med {:,} / max {:,}</text>'.format(x_max + 10, y_mid + 4, int(round(min_value)), int(round(median_value)), int(round(max_run_value))))
+
+    legend_y = height - 54
+    lines.append('<circle cx="42" cy="{}" r="5" fill="#2563eb"/>'.format(legend_y))
+    lines.append('<text x="54" y="{}" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">claim metric</text>'.format(legend_y + 4))
+    lines.append('<circle cx="154" cy="{}" r="5" fill="#111827"/>'.format(legend_y))
+    lines.append('<text x="166" y="{}" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">median excluding first two</text>'.format(legend_y + 4))
+    lines.append('<text x="40" y="{}" font-family="Arial, sans-serif" font-size="12" fill="#4b5563">{}</text>'.format(height-24, svg_escape(footer)))
+    lines.append("</svg>")
+    path.write_text("\n".join(lines) + "\n")
+
+
 def write_plots(runs):
     normal = [
         run for run in runs
@@ -354,6 +424,14 @@ def write_plots(runs):
     )
     # Keep the previous filename working for slide references.
     LEGACY_NORMAL_SVG.write_text(NORMAL_SVG.read_text())
+    write_range_svg(
+        NORMAL_RANGE_SVG,
+        "760m normal throughput variability",
+        "Min/median/max over warmup-excluded iterations; blue marker is the claim metric.",
+        normal,
+        NORMAL_ORDER,
+        "This chart highlights normal-partition burstiness; report stable windows, not isolated peaks.",
+    )
     write_bar_svg(
         DEBUG_SVG,
         "760m debug throughput, directional only",
@@ -371,6 +449,7 @@ def main():
     print("Wrote {}".format(SUMMARY_CSV))
     print("Wrote {}".format(DEFENSIBLE_CSV))
     print("Wrote {}".format(NORMAL_SVG))
+    print("Wrote {}".format(NORMAL_RANGE_SVG))
     print("Wrote {}".format(DEBUG_SVG))
 
 

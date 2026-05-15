@@ -35,6 +35,7 @@ PARTITION=normal TIME_OVERRIDE=01:30:00 NSYS_TRACE=cuda,nvtx,nccl ./profile_nsys
 - `project/plots/defensible_throughput_summary.csv`: log-parsed metrics, claim eligibility, iteration values.
 - `project/plots/throughput_summary.csv`: lightweight run inventory for quick filtering.
 - `project/plots/760m_normal_stable_throughput.svg`: normal-partition chart using stable-window metrics.
+- `project/plots/760m_normal_stable_range.svg`: normal-partition min/median/max range chart for variability.
 - `project/plots/760m_debug_stable_throughput.svg`: debug-partition chart, directional only.
 
 Regenerate artifacts with:
@@ -42,3 +43,35 @@ Regenerate artifacts with:
 ```bash
 python3 project/plot_benchmarks.py
 ```
+
+## Report-Ready Thomas Contribution
+
+Thomas's current contribution is a defensible throughput evaluation pipeline plus a first bottleneck diagnosis:
+
+1. Updated the launcher so user-specific paths/accounts live in `config.sh`, not in generated scripts.
+2. Added `USE_DISTRIBUTED_OPTIMIZER`, `MBS_OVERRIDE`, and `GBS_OVERRIDE` switches for controlled comparisons.
+3. Added `profile_nsys.sh` and NSYS report/stat extraction for profiling runs.
+4. Built log parsing that reports stable-window metrics and filters non-claim rows.
+5. Ran controlled normal-partition comparisons for distributed optimizer and micro-batch size.
+
+The strongest current claim is narrow but defensible: for the provided 760m, one-node, GBS 256 setup, MBS 4 with the default distributed optimizer remains the best measured configuration. Disabling the distributed optimizer did not reproduce the promising debug result on normal partition, and MBS 2/8 were clearly worse than MBS 4.
+
+## Teammate Integration Contract
+
+When Brandy or Jacques add results, they should append rows to `project/benchmark_log.csv` using the same conventions:
+
+| Field | Required convention |
+|---|---|
+| `feature` | Short stable slug, e.g. `cudnn-sdpa-normal-20s` or `fp8-normal-20s` |
+| `status` | `completed`, `failed`, `timeout`, `cancelled`, or `submitted` |
+| `notes` | Include command, relevant env vars, and whether the row is claim-quality |
+| `tokens_per_sec_per_gpu` | Final/stable representative value, but plots will parse the raw log when available |
+| `log_path` | Relative path under repo, e.g. `logs/<job>.log` |
+
+After adding rows, run:
+
+```bash
+python3 project/plot_benchmarks.py
+```
+
+Then update this file with a short conclusion and whether the result is suitable for final claims.
